@@ -1,20 +1,20 @@
 module Quizz.Core (
-        Proposition(Proposition), isValid, content,
+        Proposition(Good, Bad),
         Question(Question), title, propositions,
+        Answer(Checked, Empty),
         Answers(Answers), answers,
         Corrections(Corrections), corrections,
         Correction(Correct, Wrong, Missed, NotCheckedNotAnswer), correct
         )  where
 
-data Proposition = Proposition  { content :: String
-                                , isValid :: Bool
-                                } deriving (Show)
+data Proposition = Good String | Bad String deriving (Show)
 
 data Question = Question    { title :: String
                             , propositions :: [Proposition]
                             } deriving (Show)
 
-newtype Answers = Answers { answers :: [Bool] } deriving (Show)
+data Answer = Checked | Empty deriving (Show, Eq)
+newtype Answers = Answers { answers :: [Answer] } deriving (Show)
 
 newtype Corrections = Corrections { corrections :: [Correction] } deriving (Show, Eq)
 
@@ -24,8 +24,8 @@ correct :: Question -> Answers -> Corrections
 correct (Question _ propositions) (Answers answers) =
     Corrections $ zipWith check propositions answers
 
-check :: Proposition -> Bool -> Correction
-check (Proposition _ True) True = Correct
-check (Proposition _ True) False = Missed
-check (Proposition _ False) True = Wrong
-check (Proposition _ False) False = NotCheckedNotAnswer
+check :: Proposition -> Answer -> Correction
+check (Good _) Checked = Correct
+check (Good _) Empty = Missed
+check (Bad _) Checked = Wrong
+check (Bad _) Empty = NotCheckedNotAnswer
